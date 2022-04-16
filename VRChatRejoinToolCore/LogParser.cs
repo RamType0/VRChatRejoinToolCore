@@ -17,13 +17,13 @@ namespace VRChatRejoinToolCore
             var remaining = log;
             var instanceTokenStartIndex = DestinationSetInstanceIdIndexOf(remaining);
             Span<char> timeStampParseBuffer = stackalloc char[19];
-            while(instanceTokenStartIndex > 0)
+            while(instanceTokenStartIndex >= 0)
             {
                 var instanceTokenLength = remaining[instanceTokenStartIndex..].IndexOf((byte)'\n');
                 var instanceToken = Encoding.UTF8.GetString(remaining.Slice(instanceTokenStartIndex, instanceTokenLength));
 
                 var previousLineEndIndex = remaining[..instanceTokenStartIndex].LastIndexOf((byte)'\n');
-                var timeStampStartIndex = previousLineEndIndex > 0 ? previousLineEndIndex + 1 : 0;
+                var timeStampStartIndex = previousLineEndIndex >= 0 ? previousLineEndIndex + 1 : 0;
                 var timeStampSpan = remaining.Slice(timeStampStartIndex, 19);
 
                 //Utf8Parser.TryParse(timeStampSpan, out DateTime timeStamp, out _);
@@ -33,7 +33,7 @@ namespace VRChatRejoinToolCore
                 remaining = remaining[(instanceTokenStartIndex + instanceToken.Length)..];
 
                 var nextInstanceIdStartIndex = DestinationSetInstanceIdIndexOf(remaining);
-                var worldNameSearchLength = nextInstanceIdStartIndex > 0 ? nextInstanceIdStartIndex : remaining.Length;
+                var worldNameSearchLength = nextInstanceIdStartIndex >= 0 ? nextInstanceIdStartIndex : remaining.Length;
                 var worldNameSearchSpan = remaining[..worldNameSearchLength];
                 var worldName = ExtractWorldName(worldNameSearchSpan);
 
@@ -85,7 +85,7 @@ namespace VRChatRejoinToolCore
             while (true)
             {
                 var underbarIndex = remaining.IndexOf((byte)'_'); // '_' is the best single char for searching "wrld_"
-                if (underbarIndex > 0)
+                if (underbarIndex >= 0)
                 {
                     if (remaining[..underbarIndex].EndsWith(destinationSet))
                     {
@@ -128,7 +128,7 @@ namespace VRChatRejoinToolCore
 
             };
             var enteringRoomStartIndex = logFragment.IndexOf(enteringRoom);
-            if(enteringRoomStartIndex > 0)
+            if(enteringRoomStartIndex >= 0)
             {
                 var worldNameStartIndex = enteringRoomStartIndex + enteringRoom.Length;
                 var worldNameLength = logFragment[worldNameStartIndex..].IndexOf((byte)'\n');
