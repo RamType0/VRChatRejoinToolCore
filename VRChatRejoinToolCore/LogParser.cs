@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace VRChatRejoinToolCore
 {
-    internal class LogParser
+    internal static class LogParser
     {
-        public static void Add(List<Visit> visits,ReadOnlySpan<byte> log)
+        public static void GetVisits(List<Visit> visits,ReadOnlySpan<byte> log)
         {
             var remaining = log;
             var instanceTokenStartIndex = DestinationSetInstanceIdIndexOf(remaining);
