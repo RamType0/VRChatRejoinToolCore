@@ -14,7 +14,7 @@ namespace VRChatRejoinToolCore
         public static void GetVisits(List<Visit> visits,ReadOnlySpan<byte> log)
         {
             var remaining = log;
-            var instanceTokenStartIndex = DestinationSetInstanceIdIndexOf(remaining);
+            var instanceTokenStartIndex = DestinationFetchingInstanceIdIndexOf(remaining);
             Span<char> timeStampParseBuffer = stackalloc char[19];
             while(instanceTokenStartIndex >= 0)
             {
@@ -45,7 +45,7 @@ namespace VRChatRejoinToolCore
 
                 remaining = remaining.Slice(instanceTokenStartIndex + instanceToken.Length);
 
-                var nextInstanceIdStartIndex = DestinationSetInstanceIdIndexOf(remaining);
+                var nextInstanceIdStartIndex = DestinationFetchingInstanceIdIndexOf(remaining);
                 var worldNameSearchLength = nextInstanceIdStartIndex >= 0 ? nextInstanceIdStartIndex : remaining.Length;
                 var worldNameSearchSpan = remaining.Slice(0,worldNameSearchLength);
                 var worldName = ExtractWorldName(worldNameSearchSpan);
@@ -56,9 +56,9 @@ namespace VRChatRejoinToolCore
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int DestinationSetInstanceIdIndexOf(ReadOnlySpan<byte> logFragment)
+        static int DestinationFetchingInstanceIdIndexOf(ReadOnlySpan<byte> logFragment)
         {
-            ReadOnlySpan<byte> destinationSet = stackalloc byte[] {
+            ReadOnlySpan<byte> destinationFetching = stackalloc byte[] {
                 (byte)'[',
                 (byte)'B',
                 (byte)'e',
@@ -83,9 +83,14 @@ namespace VRChatRejoinToolCore
                 (byte)'o',
                 (byte)'n',
                 (byte)' ',
-                (byte)'s',
+                (byte)'f',
                 (byte)'e',
                 (byte)'t',
+                (byte)'c',
+                (byte)'h',
+                (byte)'i',
+                (byte)'n',
+                (byte)'g',
                 (byte)':',
                 (byte)' ',
                 (byte)'w',
@@ -100,7 +105,7 @@ namespace VRChatRejoinToolCore
                 var underbarIndex = remaining.IndexOf((byte)'_'); // '_' is the best single char for searching "wrld_"
                 if (underbarIndex >= 0)
                 {
-                    if (remaining.Slice(0, underbarIndex).EndsWith(destinationSet))
+                    if (remaining.Slice(0, underbarIndex).EndsWith(destinationFetching))
                     {
                         var localStartIndex = underbarIndex - 4;
                         return scanedBytes + localStartIndex;
