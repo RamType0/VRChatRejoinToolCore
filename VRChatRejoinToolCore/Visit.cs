@@ -4,8 +4,16 @@ using System.IO;
 
 namespace VRChatRejoinToolCore
 {
-    internal record Visit(Instance Instance ,DateTime TimeStamp)
+    internal class Visit
     {
+        public Visit(Instance instance,DateTime timeStamp)
+        {
+            Instance = instance;
+            TimeStamp = timeStamp;
+        }
+
+        public Instance Instance { get; }
+        public DateTime TimeStamp { get; }
         public static void LoadVisits(List<Visit> visits)
         {
             var logFileDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"../LocalLow/VRChat/VRChat");

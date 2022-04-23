@@ -179,11 +179,11 @@ namespace VRChatRejoinToolCore
 
 					return;
                 }
-				WorldId = token[..instanceNamePrefixIndex];
+				WorldId = token.Substring(0,instanceNamePrefixIndex);
 				var instanceNameStartIndex = instanceNamePrefixIndex + 1;
 				var parameterPrefixIndex = token.IndexOf('~');
 				var instanceNameEndIndex = parameterPrefixIndex >= 0 ? parameterPrefixIndex : token.Length;
-				InstanceName = token[instanceNameStartIndex..instanceNameEndIndex];
+				InstanceName = token.Substring(instanceNameStartIndex,instanceNameEndIndex-instanceNameStartIndex);
 
 				Permission = Permission.Public;
 				var canRequestInvite = false;
@@ -191,10 +191,10 @@ namespace VRChatRejoinToolCore
 				var parameters = token.AsSpan(instanceNameEndIndex);
 				while (parameters.Length > 0)
 				{
-					parameters = parameters[1..];
+					parameters = parameters.Slice(1);
 					var nextParameterPrefixIndex = parameters.IndexOf('~');
 					var parameterEndIndex = nextParameterPrefixIndex >= 0 ? nextParameterPrefixIndex : parameters.Length;
-					var parameter = parameters[..parameterEndIndex];
+					var parameter = parameters.Slice(0,parameterEndIndex);
 					var keyValueSeparatorIndex = parameter.IndexOf('(');
 
 					string key, value;
@@ -205,8 +205,8 @@ namespace VRChatRejoinToolCore
 					}
 					else
 					{
-						key = parameter[..keyValueSeparatorIndex].ToString();
-						value = parameter[(keyValueSeparatorIndex + 1)..^1].ToString();
+						key = parameter.Slice(0,keyValueSeparatorIndex).ToString();
+						value = parameter.Slice(keyValueSeparatorIndex+1,parameter.Length-key.Length-2).ToString();
 					}
 
 					switch (key)
@@ -272,7 +272,7 @@ namespace VRChatRejoinToolCore
 							break;
 					}
 
-					parameters = parameters[parameter.Length..];
+					parameters = parameters.Slice(parameter.Length);
 				}
 
 				if (canRequestInvite)

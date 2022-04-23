@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 
 namespace VRChatRejoinToolCore
@@ -19,22 +18,36 @@ namespace VRChatRejoinToolCore
             Span<char> timeStampParseBuffer = stackalloc char[19];
             while(instanceTokenStartIndex >= 0)
             {
-                var instanceTokenLength = remaining[instanceTokenStartIndex..].IndexOf((byte)'\n');
-                var instanceToken = Encoding.UTF8.GetString(remaining.Slice(instanceTokenStartIndex, instanceTokenLength));
+                var instanceTokenLength = remaining.Slice(instanceTokenStartIndex).IndexOf((byte)'\n');
+                var instanceTokenSpan = remaining.Slice(instanceTokenStartIndex, instanceTokenLength);
+                string instanceToken;
+                unsafe
+                {
+                    fixed(byte* ptr = instanceTokenSpan)
+                    {
+                        instanceToken = Encoding.UTF8.GetString(ptr,instanceTokenSpan.Length);
+                    }
+                }
 
-                var previousLineEndIndex = remaining[..instanceTokenStartIndex].LastIndexOf((byte)'\n');
+                var previousLineEndIndex = remaining.Slice(0, instanceTokenStartIndex).LastIndexOf((byte)'\n');
                 var timeStampStartIndex = previousLineEndIndex >= 0 ? previousLineEndIndex + 1 : 0;
                 var timeStampSpan = remaining.Slice(timeStampStartIndex, 19);
 
-                //Utf8Parser.TryParse(timeStampSpan, out DateTime timeStamp, out _);
-                Utf8.ToUtf16(timeStampSpan, timeStampParseBuffer, out _, out _);
-                var timeStamp = DateTime.Parse(timeStampParseBuffer);
+                string timeStampString;
+                unsafe
+                {
+                    fixed(byte* ptr = timeStampSpan)
+                    {
+                        timeStampString = Encoding.UTF8.GetString(ptr,timeStampSpan.Length);
+                    }
+                }
+                var timeStamp = DateTime.Parse(timeStampString);
 
-                remaining = remaining[(instanceTokenStartIndex + instanceToken.Length)..];
+                remaining = remaining.Slice(instanceTokenStartIndex + instanceToken.Length);
 
                 var nextInstanceIdStartIndex = DestinationSetInstanceIdIndexOf(remaining);
                 var worldNameSearchLength = nextInstanceIdStartIndex >= 0 ? nextInstanceIdStartIndex : remaining.Length;
-                var worldNameSearchSpan = remaining[..worldNameSearchLength];
+                var worldNameSearchSpan = remaining.Slice(0,worldNameSearchLength);
                 var worldName = ExtractWorldName(worldNameSearchSpan);
 
                 visits.Add(new Visit(new Instance(instanceToken, worldName), timeStamp));
@@ -87,7 +100,7 @@ namespace VRChatRejoinToolCore
                 var underbarIndex = remaining.IndexOf((byte)'_'); // '_' is the best single char for searching "wrld_"
                 if (underbarIndex >= 0)
                 {
-                    if (remaining[..underbarIndex].EndsWith(destinationSet))
+                    if (remaining.Slice(0, underbarIndex).EndsWith(destinationSet))
                     {
                         var localStartIndex = underbarIndex - 4;
                         return scanedBytes + localStartIndex;
@@ -95,7 +108,7 @@ namespace VRChatRejoinToolCore
                     else
                     {
                         scanedBytes += underbarIndex + 1;
-                        remaining = logFragment[scanedBytes..];
+                        remaining = logFragment.Slice(scanedBytes);
                     }
 
                 }
@@ -131,9 +144,16 @@ namespace VRChatRejoinToolCore
             if(enteringRoomStartIndex >= 0)
             {
                 var worldNameStartIndex = enteringRoomStartIndex + enteringRoom.Length;
-                var worldNameLength = logFragment[worldNameStartIndex..].IndexOf((byte)'\n');
-                var worldName = Encoding.UTF8.GetString(logFragment.Slice(worldNameStartIndex, worldNameLength));
-                return worldName;
+                var worldNameLength = logFragment.Slice(worldNameStartIndex).IndexOf((byte)'\n');
+                var worldNameSpan = logFragment.Slice(worldNameStartIndex, worldNameLength);
+                unsafe
+                {
+                    fixed(byte* ptr = worldNameSpan)
+                    {
+                        var worldName = Encoding.UTF8.GetString(ptr, worldNameSpan.Length);
+                        return worldName;
+                    }
+                }
             }
             else
             {
