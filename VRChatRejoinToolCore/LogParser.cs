@@ -15,7 +15,6 @@ namespace VRChatRejoinToolCore
         {
             var remaining = log;
             var instanceTokenStartIndex = DestinationFetchingInstanceIdIndexOf(remaining);
-            Span<char> timeStampParseBuffer = stackalloc char[19];
             while(instanceTokenStartIndex >= 0)
             {
                 var instanceTokenLength = remaining.Slice(instanceTokenStartIndex).IndexOf((byte)'\n');

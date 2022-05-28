@@ -21,6 +21,7 @@
         <Label x:Name="TokenLabel" Content="{Binding Selected.Instance.Token}" Margin="10,258,0,0" VerticalAlignment="Top"/>
         <Button x:Name="LaunchButton" Content="Launch" HorizontalAlignment="Left" Margin="8,0,0,10" VerticalAlignment="Bottom" Click="Launch"/>
         <Button x:Name="InstanceDetailButton" Content="Detail" HorizontalAlignment="Left" Margin="55,0,0,10" VerticalAlignment="Bottom" Click="OpenInstanceDetail"/>
-        <Button x:Name="UserDetailButton" Content="User" HorizontalAlignment="Left" Margin="95,0,0,10" VerticalAlignment="Bottom" Click="OpenUserDetail"/>
+        <Button x:Name="UserDetailButton" Content="User" HorizontalAlignment="Left" Margin="95,0,0,10" VerticalAlignment="Bottom" Click="OpenUserDetail" IsEnabled="{Binding CanOpenUserDetail}"/>
+        <Button x:Name="CreateLaunchShortcutButton" Content="Shortcut" HorizontalAlignment="Left" Margin="128,0,0,10" VerticalAlignment="Bottom" Click="CreateLaunchShortcut"/>
     </Grid>
 </Window>

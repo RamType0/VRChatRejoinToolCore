@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace VRChatRejoinToolCore
@@ -110,51 +111,26 @@ namespace VRChatRejoinToolCore
 				return token;
 			}
 		}
-		public string RegionName
-		{
-			get
-			{
-				switch (Region)
-				{
-					case ServerRegion.USWWithIdentifier:
-					case ServerRegion.USW:
-						return "USW";
-					case ServerRegion.USE:
-						return "USE";
-					case ServerRegion.EU:
-						return "EU";
-					case ServerRegion.JP:
-						return "JP";
-					default:
-						return CustomRegion.ToUpper();
-				}
-			}
-		}
+        public string RegionName => Region switch
+        {
+            ServerRegion.USWWithIdentifier or ServerRegion.USW => "USW",
+            ServerRegion.USE => "USE",
+            ServerRegion.EU => "EU",
+            ServerRegion.JP => "JP",
+            _ => CustomRegion.ToUpper(),
+        };
 
-		public bool IsValidCustomRegionName()
-		{
-			return regionR.Match(CustomRegion).Success;
-		}
+        public bool HasValidCustomRegionName => regionR.Match(CustomRegion).Success;
 
-		public bool IsValidInstanceName()
-		{
-			return instanceNameR.Match(InstanceName).Success;
-		}
+        public bool HasValidInstanceName => instanceNameR.Match(InstanceName).Success;
 
-		public bool IsValidNonceValue()
-		{
-			return Nonce is not null && nonceR.Match(Nonce).Success;
-		}
+        [MemberNotNullWhen(true, nameof(Nonce))]
+        public bool HasValidNonceValue => Nonce is not null && nonceR.Match(Nonce).Success;
 
-		public bool IsValidWorldId()
-		{
-			return worldIdR.Match(WorldId).Success;
-		}
-
-		public bool IsValidUserId()
-		{
-			return OwnerId is not null && userIdR.Match(OwnerId).Success;
-		}
+        public bool HasValidWorldId => worldIdR.Match(WorldId).Success;
+        [MemberNotNullWhen(true,nameof(OwnerId))]
+		public bool HasValidOwnerId => OwnerId is not null && userIdR.Match(OwnerId).Success;
+		
 
 		public Instance(string token, string? worldName)
 		{

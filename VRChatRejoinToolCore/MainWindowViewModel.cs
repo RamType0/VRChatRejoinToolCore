@@ -9,7 +9,7 @@ namespace VRChatRejoinToolCore
 {
     internal class MainWindowViewModel : INotifyPropertyChanged
     {
-        List<Visit> visits;
+        readonly List<Visit> visits;
         int currentIndex;
 
         public int CurrentIndex
@@ -26,6 +26,7 @@ namespace VRChatRejoinToolCore
                         PropertyChanged(this, new PropertyChangedEventArgs(nameof(Selected)));
                         PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasNewer)));
                         PropertyChanged(this, new PropertyChangedEventArgs(nameof(HasOlder)));
+                        PropertyChanged(this, new PropertyChangedEventArgs(nameof(CanOpenUserDetail)));
                     }
                 }
                 
@@ -37,7 +38,7 @@ namespace VRChatRejoinToolCore
         public Visit Selected => visits[currentIndex];
         public bool HasNewer => currentIndex < visits.Count - 1;
         public bool HasOlder => currentIndex > 0;
-
+        public bool CanOpenUserDetail => Selected.Instance.OwnerId is not null;
         public void SelectNewer() => CurrentIndex++;
         public void SelectOlder() => CurrentIndex--;
         public MainWindowViewModel()

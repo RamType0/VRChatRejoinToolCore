@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,7 +49,27 @@ namespace VRChatRejoinToolCore
 
         private void OpenUserDetail(object sender, RoutedEventArgs e)
         {
-            VRChatWeb.OpenUserDetail(Model.Selected.Instance.OwnerId);
+            if (Model.Selected.Instance.HasValidOwnerId)
+            {
+                VRChatWeb.OpenUserDetail(Model.Selected.Instance.OwnerId);
+            }
+            else
+            {
+                throw new InvalidOperationException($"OwnerId is invalid. OwnerId:{Model.Selected.Instance.OwnerId}");
+            }
+        }
+
+        private void CreateLaunchShortcut(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            var instance = Model.Selected.Instance;
+            dialog.FileName = instance.WorldName;
+            dialog.Filter = "Link (*.lnk)|*.lnk";
+            if (dialog.ShowDialog() == true)
+            {
+                ShortcutHelper.CreateShortcut(dialog.FileName!,UriGenerator.GetLaunchInstanceUri(instance));
+            }
         }
     }
 }

@@ -13,24 +13,9 @@ namespace VRChatRejoinToolCore
     {
 		public static void SaveInstanceToShortcut(Instance i, string filepath, bool httpLink = false)
 		{
-			var dynShellType = Type.GetTypeFromCLSID(new Guid("72C24DD5-D70A-438B-8A42-98424B88AFB8"))!;
-			dynamic shell = Activator.CreateInstance(dynShellType)!;
-			var shortcut = shell.CreateShortcut(filepath);
-
 			//shortcut.IconLocation = Application.ExecutablePath + ",0";
-
-			if (!httpLink)
-			{
-				shortcut.TargetPath = UriGenerator.GetLaunchInstanceUri(i);
-			}
-			else
-			{
-				shortcut.TargetPath = UriGenerator.GetInstanceWebPageUri(i);
-			}
-
-			shortcut.Save();
-			Marshal.FinalReleaseComObject(shortcut);
-			Marshal.FinalReleaseComObject(shell);
+			var targetPath = httpLink ? UriGenerator.GetInstanceWebPageUri(i) : UriGenerator.GetLaunchInstanceUri(i);
+			ShortcutHelper.CreateShortcut(filepath, targetPath);
 		}
 
 		public static void Launch(Instance i, bool killVRC)
